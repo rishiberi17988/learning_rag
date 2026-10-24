@@ -1,0 +1,2 @@
+RAG combines retrieval with generation.
+Documents provide context to a language model.

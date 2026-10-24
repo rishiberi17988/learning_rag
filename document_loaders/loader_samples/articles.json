@@ -1,0 +1,12 @@
+{
+  "articles": [
+    {
+      "title": "Chunking",
+      "body": "Split long text into useful passages."
+    },
+    {
+      "title": "Retrieval",
+      "body": "Find relevant passages for a query."
+    }
+  ]
+}
