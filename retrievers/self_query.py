@@ -27,6 +27,22 @@ from typing import Any
 from ._utils import build_gemini_llm, to_langchain_store
 
 
+def _translator_for(lc_store: Any) -> Any:
+    """Return the explicit structured-query translator for Chroma or Pinecone."""
+    store_type = type(lc_store).__name__
+    if store_type == "Chroma":
+        from langchain_community.query_constructors.chroma import ChromaTranslator
+
+        return ChromaTranslator()
+    if store_type == "PineconeVectorStore":
+        from langchain_community.query_constructors.pinecone import PineconeTranslator
+
+        return PineconeTranslator()
+    raise ValueError(
+        f"SelfQueryRetriever requires ChromaStore or PineconeStore (got {store_type})."
+    )
+
+
 def build_self_query_retriever(
     store: Any,
     *,
@@ -44,16 +60,16 @@ def build_self_query_retriever(
     from langchain_classic.chains.query_constructor.schema import AttributeInfo
     from langchain_classic.retrievers.self_query.base import SelfQueryRetriever
 
-    # Tell the LLM which fields exist and what they mean.
+    lc_store = to_langchain_store(store)
     attribute_info = [
         AttributeInfo(name=name, type=type_, description=description)
         for name, type_, description in metadata_fields
     ]
     return SelfQueryRetriever.from_llm(
         llm=llm or build_gemini_llm(),  # Writes the structured query.
-        vectorstore=to_langchain_store(store),  # Must be Chroma or Pinecone.
+        vectorstore=lc_store,  # Must be Chroma or Pinecone.
         document_contents=document_contents,
         metadata_field_info=attribute_info,
+        structured_query_translator=_translator_for(lc_store),
         search_kwargs={"k": k},
     )
-

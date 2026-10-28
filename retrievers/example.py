@@ -173,7 +173,7 @@ def demo_mmr(ctx):
 
 
 def demo_score_threshold(ctx):
-    threshold = 0.6
+    threshold = 0.8
     lc_store = to_langchain_store(ctx["store"])
     retriever = build_score_threshold_retriever(ctx["store"], score_threshold=threshold, k=4)
     for query in ["How do I split documents?", "What is the capital of France?"]:
@@ -244,9 +244,9 @@ def demo_reranking(ctx):
 
 def demo_compression_embeddings(ctx):
     query = "How do I split documents?"
-    print(f"  Query: {query!r}  (fetch 4, keep those with similarity >= 0.75)")
+    print(f"  Query: {query!r}  (fetch 4, keep those with cosine similarity >= 0.68)")
     retriever = build_compression_retriever(
-        ctx["store"], mode="embeddings", embeddings=ctx["embeddings"], similarity_threshold=0.75, k=4
+        ctx["store"], mode="embeddings", embeddings=ctx["embeddings"], similarity_threshold=0.68, k=4
     )
     show(retriever.invoke(query))
 

@@ -30,15 +30,21 @@ def to_langchain_store(store: Any) -> Any:
     return store
 
 
-def build_gemini_llm(model: str = DEFAULT_GEMINI_CHAT_MODEL, temperature: float = 0.0) -> Any:
+def build_gemini_llm(
+    model: str = DEFAULT_GEMINI_CHAT_MODEL,
+    temperature: float = 0.0,
+    max_retries: int = 6,
+) -> Any:
     """Create a Gemini chat model. Reads ``GOOGLE_API_KEY`` from the environment.
 
     ``temperature=0`` makes answers as repeatable as possible, which is what
     you want when the LLM is producing search queries or filters.
+    ``max_retries=6`` allows automatic exponential-backoff retries when the
+    Gemini free-tier 15-RPM rate limit is reached.
     """
     try:
         from langchain_google_genai import ChatGoogleGenerativeAI
     except ImportError as exc:
         raise ImportError("Install Gemini chat support with: pip install langchain-google-genai") from exc
-    return ChatGoogleGenerativeAI(model=model, temperature=temperature)
+    return ChatGoogleGenerativeAI(model=model, temperature=temperature, max_retries=max_retries)
 
